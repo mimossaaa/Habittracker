@@ -58,7 +58,7 @@ class HabitTracker:
         self.puzzle_label = ttk.Label(self.puzzle_frame, text="Weekly Progress Puzzle", style="Puzzle.TLabel")
         self.puzzle_label.pack(pady=(10,10))
 
-        height=220,   # <-- was 270; now matches 4 rows
+        self.puzzle_canvas = tk.Canvas(self.puzzle_frame, width=380, height=220, bg="#f0f0f0", highlightthickness=0)
         self.puzzle_canvas.pack(pady=10)
 
         self.update_graph()
@@ -132,7 +132,6 @@ class HabitTracker:
                 if habit in completed_today:
                     self.habit_states[i] = True
         self.draw_pentagon()
-        self.update_background()
 
     def load_data(self):
         try:
