@@ -12,7 +12,7 @@ class HabitTracker:
     def __init__(self, root):
         self.root = root
         self.root.title("Habit Tracker")
-        self.root.geometry("1200x700")
+        self.root.geometry("1600x700")
         self.root.configure(bg="#f0f0f0")
 
         self.habits = ["Calculus", "Chemistry", "Reading", "Projects", "Exercise"]
@@ -23,16 +23,18 @@ class HabitTracker:
         self.update_background()
 
     def create_widgets(self):
-        main_frame = ttk.Frame(self.root, style="Main.TFrame")
-        main_frame.pack(side="left", expand=True, fill="both", padx=(40, 20), pady=40)
+        left_frame = ttk.Frame(self.root, style="Main.TFrame")
+        left_frame.pack(side="left", expand=True, fill="both", padx=(40, 20), pady=40)
 
-        content_frame = ttk.Frame(main_frame, style="Main.TFrame")
+        content_frame = ttk.Frame(left_frame, style="Main.TFrame")
         content_frame.pack(expand=True)
 
         self.root.style = ttk.Style()
         self.root.style.configure("Main.TFrame", background="#f0f0f0")
         self.root.style.configure("TButton", padding=10, font=("Helvetica", 12))
         self.root.style.configure("Header.TLabel", background="#f0f0f0", font=("Helvetica", 18, "bold"))
+        self.root.style.configure("Puzzle.TLabel", background="#f0f0f0", font=("Helvetica", 14, "bold"))
+
 
         header_label = ttk.Label(content_frame, text="Track Your Habits", style="Header.TLabel")
         header_label.pack(pady=(0, 20))
@@ -45,10 +47,17 @@ class HabitTracker:
         log_button = ttk.Button(content_frame, text="Log Habits", command=self.log_habits)
         log_button.pack(pady=20)
 
-        self.graph_frame = ttk.Frame(self.root, style="Main.TFrame")
-        self.graph_frame.pack(side="right", expand=True, fill="both", padx=(20, 40), pady=40)
+        right_frame = ttk.Frame(self.root, style="Main.TFrame")
+        right_frame.pack(side="right", expand=True, fill="both", padx=(20, 40), pady=40)
+
+        self.graph_frame = ttk.Frame(right_frame, style="Main.TFrame")
+        self.graph_frame.pack(side="top", expand=True, fill="both", pady=(0, 20))
         
+        self.puzzle_frame = ttk.Frame(right_frame, style="Main.TFrame")
+        self.puzzle_frame.pack(side="bottom", expand=True, fill="both")
+
         self.update_graph()
+        self.update_puzzle()
 
     def draw_pentagon(self):
         self.canvas.delete("all")
@@ -91,6 +100,8 @@ class HabitTracker:
         self.canvas.configure(bg=color)
         self.root.style.configure("Main.TFrame", background=color)
         self.root.style.configure("Header.TLabel", background=color)
+        self.root.style.configure("Puzzle.TLabel", background=color)
+
 
     def log_habits(self):
         data = self.load_data()
@@ -104,6 +115,7 @@ class HabitTracker:
         self.habit_states = [False] * len(self.habits)
         self.draw_pentagon()
         self.update_graph()
+        self.update_puzzle()
         self.update_background()
 
     def load_daily_habits_state(self):
@@ -140,7 +152,7 @@ class HabitTracker:
         habits_completed = [len(data.get(date, [])) for date in week_dates]
 
         if not any(habits_completed):
-            no_data_label = ttk.Label(self.graph_frame, text="No habit data for this week. Log some habits to see your progress!", style="Header.TLabel")
+            no_data_label = ttk.Label(self.graph_frame, text="No habit data for this week.", style="Header.TLabel")
             no_data_label.pack(expand=True)
             return
 
@@ -161,6 +173,36 @@ class HabitTracker:
         canvas.draw()
         canvas.get_tk_widget().pack(expand=True, fill="both")
         plt.close(fig)
+
+    def update_puzzle(self):
+        for widget in self.puzzle_frame.winfo_children():
+            widget.destroy()
+
+        puzzle_label = ttk.Label(self.puzzle_frame, text="Weekly Progress Puzzle", style="Puzzle.TLabel")
+        puzzle_label.pack(pady=(10,10))
+
+        data = self.load_data()
+        today = datetime.now()
+        start_of_week = today - timedelta(days=today.weekday())
+        week_dates = [(start_of_week + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
+        
+        total_habits_this_week = sum(len(data.get(date, [])) for date in week_dates)
+
+        puzzle_canvas = tk.Canvas(self.puzzle_frame, width=350, height=250, bg="#ffffff", highlightthickness=1)
+        puzzle_canvas.pack()
+
+        rows, cols = 5, 7
+        cell_width = 350 / cols
+        cell_height = 250 / rows
+        
+        for i in range(total_habits_this_week):
+            row = i // cols
+            col = i % cols
+            x1 = col * cell_width
+            y1 = row * cell_height
+            x2 = x1 + cell_width
+            y2 = y1 + cell_height
+            puzzle_canvas.create_rectangle(x1, y1, x2, y2, fill="#4caf50", outline="white")
 
 if __name__ == "__main__":
     root = ThemedTk(theme="arc")
