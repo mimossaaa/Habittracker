@@ -58,7 +58,7 @@ class HabitTracker:
         self.puzzle_label = ttk.Label(self.puzzle_frame, text="Weekly Progress Puzzle", style="Puzzle.TLabel")
         self.puzzle_label.pack(pady=(10,10))
 
-        self.puzzle_canvas = tk.Canvas(self.puzzle_frame, width=380, height=270, bg="#f0f0f0", highlightthickness=0)
+        self.puzzle_canvas = tk.Canvas(self.puzzle_frame, width=380, height=290, bg="#f0f0f0", highlightthickness=0)
         self.puzzle_canvas.pack(pady=10)
 
         self.update_graph()
