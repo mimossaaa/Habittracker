@@ -223,28 +223,24 @@ class HabitTracker:
         cell_width = (canvas_width - (cols + 1) * gap) / cols
         cell_height = (canvas_height - (rows + 1) * gap) / rows
 
-        if total_habits_this_week > 0:
-            num_full_rows = total_habits_this_week // cols
-            squares_to_draw_green = num_full_rows * cols
-
-            # Draw gray squares only for the full rows of green squares
-            for r in range(num_full_rows):
-                for c in range(cols):
-                    x1 = gap + c * (cell_width + gap)
-                    y1 = gap + r * (cell_height + gap)
-                    x2 = x1 + cell_width
-                    y2 = y1 + cell_height
-                    self._create_rounded_rectangle(self.puzzle_canvas, x1, y1, x2, y2, radius=corner_radius, fill="#e0e0e0", outline="")
-
-            # Draw green squares
-            for i in range(min(squares_to_draw_green, 35)): # 35 is max squares (5 rows * 7 cols)
-                row = i // cols
-                col = i % cols
-                x1 = gap + col * (cell_width + gap)
-                y1 = gap + row * (cell_height + gap)
+        # Draw all squares as gray initially
+        for r in range(rows):
+            for c in range(cols):
+                x1 = gap + c * (cell_width + gap)
+                y1 = gap + r * (cell_height + gap)
                 x2 = x1 + cell_width
                 y2 = y1 + cell_height
-                self._create_rounded_rectangle(self.puzzle_canvas, x1, y1, x2, y2, radius=corner_radius, fill="#4caf50", outline="")
+                self._create_rounded_rectangle(self.puzzle_canvas, x1, y1, x2, y2, radius=corner_radius, fill="#e0e0e0", outline="")
+
+        # Draw green squares based on total_habits_this_week
+        for i in range(min(total_habits_this_week, rows * cols)):
+            row = i // cols
+            col = i % cols
+            x1 = gap + col * (cell_width + gap)
+            y1 = gap + row * (cell_height + gap)
+            x2 = x1 + cell_width
+            y2 = y1 + cell_height
+            self._create_rounded_rectangle(self.puzzle_canvas, x1, y1, x2, y2, radius=corner_radius, fill="#4caf50", outline="")
 
 if __name__ == "__main__":
     root = ThemedTk(theme="arc")
