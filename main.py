@@ -35,7 +35,6 @@ class HabitTracker:
         self.root.style.configure("Header.TLabel", background="#f0f0f0", font=("Helvetica", 18, "bold"))
         self.root.style.configure("Puzzle.TLabel", background="#f0f0f0", font=("Helvetica", 14, "bold"))
 
-
         header_label = ttk.Label(content_frame, text="Track Your Habits", style="Header.TLabel")
         header_label.pack(pady=(0, 20))
 
@@ -55,6 +54,12 @@ class HabitTracker:
         
         self.puzzle_frame = ttk.Frame(right_frame, style="Main.TFrame")
         self.puzzle_frame.pack(side="bottom", expand=True, fill="both")
+
+        self.puzzle_label = ttk.Label(self.puzzle_frame, text="Weekly Progress Puzzle", style="Puzzle.TLabel")
+        self.puzzle_label.pack(pady=(10,10))
+
+        self.puzzle_canvas = tk.Canvas(self.puzzle_frame, width=380, height=270, bg="#f0f0f0", highlightthickness=0)
+        self.puzzle_canvas.pack(pady=10)
 
         self.update_graph()
         self.update_puzzle()
@@ -77,7 +82,6 @@ class HabitTracker:
             triangle = self.canvas.create_polygon(center_x, center_y, x1, y1, x2, y2, fill=color, outline="white", width=2)
             self.triangle_ids.append(triangle)
 
-            # Add habit labels
             label_angle = (angle + angle2) / 2
             label_x = center_x + (radius + 30) * math.cos(label_angle)
             label_y = center_y + (radius + 30) * math.sin(label_angle)
@@ -98,10 +102,11 @@ class HabitTracker:
         
         self.root.configure(bg=color)
         self.canvas.configure(bg=color)
+        if hasattr(self, 'puzzle_canvas'):
+            self.puzzle_canvas.configure(bg=color)
         self.root.style.configure("Main.TFrame", background=color)
         self.root.style.configure("Header.TLabel", background=color)
         self.root.style.configure("Puzzle.TLabel", background=color)
-
 
     def log_habits(self):
         data = self.load_data()
@@ -174,12 +179,32 @@ class HabitTracker:
         canvas.get_tk_widget().pack(expand=True, fill="both")
         plt.close(fig)
 
-    def update_puzzle(self):
-        for widget in self.puzzle_frame.winfo_children():
-            widget.destroy()
+    def _create_rounded_rectangle(self, canvas, x1, y1, x2, y2, radius=25, **kwargs):
+        """Draws a rounded rectangle on a canvas."""
+        points = [x1 + radius, y1,
+                  x1 + radius, y1,
+                  x2 - radius, y1,
+                  x2 - radius, y1,
+                  x2, y1,
+                  x2, y1 + radius,
+                  x2, y1 + radius,
+                  x2, y2 - radius,
+                  x2, y2 - radius,
+                  x2, y2,
+                  x2 - radius, y2,
+                  x2 - radius, y2,
+                  x1 + radius, y2,
+                  x1 + radius, y2,
+                  x1, y2,
+                  x1, y2 - radius,
+                  x1, y2 - radius,
+                  x1, y1 + radius,
+                  x1, y1 + radius,
+                  x1, y1]
+        return canvas.create_polygon(points, **kwargs, smooth=True)
 
-        puzzle_label = ttk.Label(self.puzzle_frame, text="Weekly Progress Puzzle", style="Puzzle.TLabel")
-        puzzle_label.pack(pady=(10,10))
+    def update_puzzle(self):
+        self.puzzle_canvas.delete("all")
 
         data = self.load_data()
         today = datetime.now()
@@ -188,21 +213,38 @@ class HabitTracker:
         
         total_habits_this_week = sum(len(data.get(date, [])) for date in week_dates)
 
-        puzzle_canvas = tk.Canvas(self.puzzle_frame, width=350, height=250, bg="#ffffff", highlightthickness=1)
-        puzzle_canvas.pack()
-
-        rows, cols = 5, 7
-        cell_width = 350 / cols
-        cell_height = 250 / rows
+        canvas_width = 380
+        canvas_height = 270
         
-        for i in range(total_habits_this_week):
-            row = i // cols
-            col = i % cols
-            x1 = col * cell_width
-            y1 = row * cell_height
-            x2 = x1 + cell_width
-            y2 = y1 + cell_height
-            puzzle_canvas.create_rectangle(x1, y1, x2, y2, fill="#4caf50", outline="white")
+        rows, cols = 5, 7
+        gap = 5
+        corner_radius = 8
+
+        cell_width = (canvas_width - (cols + 1) * gap) / cols
+        cell_height = (canvas_height - (rows + 1) * gap) / rows
+
+        for r in range(rows):
+            for c in range(cols):
+                x1 = gap + c * (cell_width + gap)
+                y1 = gap + r * (cell_height + gap)
+                x2 = x1 + cell_width
+                y2 = y1 + cell_height
+                self._create_rounded_rectangle(self.puzzle_canvas, x1, y1, x2, y2, radius=corner_radius, fill="#e0e0e0", outline="")
+
+        if total_habits_this_week > 0:
+            # Calculate the number of full rows
+            num_full_rows = total_habits_this_week // cols
+            # Calculate the total number of squares to draw (only full rows)
+            squares_to_draw = num_full_rows * cols
+
+            for i in range(min(squares_to_draw, 35)):
+                row = i // cols
+                col = i % cols
+                x1 = gap + col * (cell_width + gap)
+                y1 = gap + row * (cell_height + gap)
+                x2 = x1 + cell_width
+                y2 = y1 + cell_height
+                self._create_rounded_rectangle(self.puzzle_canvas, x1, y1, x2, y2, radius=corner_radius, fill="#4caf50", outline="")
 
 if __name__ == "__main__":
     root = ThemedTk(theme="arc")
