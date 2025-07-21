@@ -12,7 +12,6 @@ class HabitTracker:
     def __init__(self, root):
         self.root = root
         self.root.title("Habit Tracker")
-        self.root.geometry("1600x700")
         self.root.configure(bg="#f0f0f0")
 
         self.habits = ["Calculus", "Chemistry", "Reading", "Projects", "Exercise"]
@@ -38,10 +37,11 @@ class HabitTracker:
         header_label = ttk.Label(content_frame, text="Track Your Habits", style="Header.TLabel")
         header_label.pack(pady=(0, 20))
 
-        self.canvas = tk.Canvas(content_frame, width=300, height=300, bg="#f0f0f0", highlightthickness=0)
-        self.canvas.pack(pady=20)
+        self.canvas = tk.Canvas(content_frame, bg="#f0f0f0", highlightthickness=0)
+        self.canvas.pack(expand=True, fill='both', pady=20)
         self.draw_pentagon()
         self.canvas.bind("<Button-1>", self.on_canvas_click)
+        self.canvas.bind("<Configure>", self.draw_pentagon)
 
         log_button = ttk.Button(content_frame, text="Log Habits", command=self.log_habits)
         log_button.pack(pady=20)
@@ -58,16 +58,19 @@ class HabitTracker:
         self.puzzle_label = ttk.Label(self.puzzle_frame, text="Weekly Progress Puzzle", style="Puzzle.TLabel")
         self.puzzle_label.pack(pady=(10,10))
 
-        self.puzzle_canvas = tk.Canvas(self.puzzle_frame, width=380, height=300, bg="#f0f0f0", highlightthickness=0)
-        self.puzzle_canvas.pack(pady=10)
+        self.puzzle_canvas = tk.Canvas(self.puzzle_frame, bg="#f0f0f0", highlightthickness=0)
+        self.puzzle_canvas.pack(expand=True, fill='both', pady=10)
+        self.puzzle_canvas.bind("<Configure>", self.update_puzzle)
 
         self.update_graph()
         self.update_puzzle()
 
-    def draw_pentagon(self):
+    def draw_pentagon(self, event=None):
         self.canvas.delete("all")
-        center_x, center_y = 150, 150
-        radius = 100
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
+        center_x, center_y = width / 2, height / 2
+        radius = min(width, height) * 0.4
         self.triangle_ids = []
         for i in range(5):
             angle = (math.pi / 2.5) * i - math.pi / 2
@@ -202,7 +205,7 @@ class HabitTracker:
                   x1, y1]
         return canvas.create_polygon(points, **kwargs, smooth=True)
 
-    def update_puzzle(self):
+    def update_puzzle(self, event=None):
         self.puzzle_canvas.delete("all")
 
         data = self.load_data()
@@ -212,8 +215,8 @@ class HabitTracker:
         
         total_habits_this_week = sum(len(data.get(date, [])) for date in week_dates)
 
-        canvas_width = 380
-        canvas_height = 270
+        canvas_width = self.puzzle_canvas.winfo_width()
+        canvas_height = self.puzzle_canvas.winfo_height()
         
         rows, cols = 5, 7
         gap = 5
