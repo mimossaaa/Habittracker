@@ -70,7 +70,7 @@ class HabitTracker:
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
         center_x, center_y = width / 2, height / 2
-        radius = min(width, height) * 0.4
+        radius = min(width, height) * 0.35
         self.triangle_ids = []
         for i in range(5):
             angle = (math.pi / 2.5) * i - math.pi / 2
@@ -86,8 +86,8 @@ class HabitTracker:
             self.triangle_ids.append(triangle)
 
             label_angle = (angle + angle2) / 2
-            label_x = center_x + (radius + 30) * math.cos(label_angle)
-            label_y = center_y + (radius + 30) * math.sin(label_angle)
+            label_x = center_x + (radius + 25) * math.cos(label_angle)
+            label_y = center_y + (radius + 25) * math.sin(label_angle)
             self.canvas.create_text(label_x, label_y, text=self.habits[i], font=("Helvetica", 10, "bold"))
 
     def on_canvas_click(self, event):
