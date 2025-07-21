@@ -14,6 +14,8 @@ Before you begin, ensure you have met the following requirements:
 
 ## Installation
 
+### For Windows:
+
 To get a local copy up and running, follow these simple steps.
 
 1.  **Clone the repository:**
@@ -23,7 +25,40 @@ To get a local copy up and running, follow these simple steps.
     cd Habit-Tracker
     ```
 
-2.  **No additional dependencies are required for this basic version.**
+2.  **Install dependencies:**
+    ```bash
+    pip install matplotlib
+    python3 -m pip install git+https://github.com/RedFantom/ttkthemes
+    ```
+
+### For Linux:
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/Habit-Tracker.git
+    cd Habit-Tracker
+    ```
+
+2.  **Install dependencies:**
+
+    -   **Tkinter:**
+        -   For Debian/Ubuntu:
+            ```bash
+            sudo apt-get install python3-tk
+            ```
+        -   For Fedora:
+            ```bash
+            sudo dnf install python3-tkinter
+            ```
+    -   **Matplotlib:**
+        ```bash
+        python3 -m pip install matplotlib
+        ```
+    -   **ttkthemes:**
+        ```bash
+        python3 -m pip install git+https://github.com/RedFantom/ttkthemes
+        ```
 
 ## Usage
 
