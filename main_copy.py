@@ -1,20 +1,71 @@
-
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from ttkthemes import ThemedTk
 import json
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import math
+import os
+
+HABITS_CONFIG_FILE = "user_habits.json"
+
+def load_habits_config():
+    if not os.path.exists(HABITS_CONFIG_FILE):
+        return None
+    try:
+        with open(HABITS_CONFIG_FILE, "r") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError):
+        return None
+
+def save_habits_config(habits):
+    with open(HABITS_CONFIG_FILE, "w") as f:
+        json.dump(habits, f, indent=4)
+
+class SetupWindow:
+    def __init__(self, root, on_complete):
+        self.root = root
+        self.on_complete = on_complete
+        self.root.title("Setup Your Habits")
+        self.root.geometry("400x400")
+
+        self.frame = ttk.Frame(self.root, padding="20")
+        self.frame.pack(expand=True, fill="both")
+
+        ttk.Label(self.frame, text="Please enter your 5 daily habits:", font=("Helvetica", 14, "bold")).pack(pady=(0, 20))
+
+        self.entries = []
+        for i in range(5):
+            ttk.Label(self.frame, text=f"Habit {i+1}:").pack(anchor="w", padx=10)
+            entry = ttk.Entry(self.frame, width=40)
+            entry.pack(pady=5, padx=10)
+            self.entries.append(entry)
+
+        save_button = ttk.Button(self.frame, text="Save and Start", command=self.save_habits)
+        save_button.pack(pady=20)
+
+    def save_habits(self):
+        habits = [entry.get().strip() for entry in self.entries]
+        if any(not habit for habit in habits):
+            messagebox.showerror("Error", "Please fill in all 5 habits.")
+            return
+        
+        save_habits_config(habits)
+        
+        for widget in self.frame.winfo_children():
+            widget.destroy()
+        self.frame.destroy()
+        
+        self.on_complete(habits)
 
 class HabitTracker:
-    def __init__(self, root):
+    def __init__(self, root, habits):
         self.root = root
+        self.habits = habits
         self.root.title("Habit Tracker")
         self.root.configure(bg="#f0f0f0")
 
-        self.habits = ["Calculus", "Chemistry", "Reading", "Projects", "Exercise"]
         self.habit_states = [False] * len(self.habits)
 
         self.create_widgets()
@@ -182,7 +233,6 @@ class HabitTracker:
         plt.close(fig)
 
     def _create_rounded_rectangle(self, canvas, x1, y1, x2, y2, radius=25, **kwargs):
-        """Draws a rounded rectangle on a canvas."""
         points = [x1 + radius, y1,
                   x1 + radius, y1,
                   x2 - radius, y1,
@@ -225,7 +275,6 @@ class HabitTracker:
         cell_width = (canvas_width - (cols + 1) * gap) / cols
         cell_height = (canvas_height - (rows + 1) * gap) / rows
 
-        # Draw all squares as gray initially
         for r in range(rows):
             for c in range(cols):
                 x1 = gap + c * (cell_width + gap)
@@ -234,7 +283,6 @@ class HabitTracker:
                 y2 = y1 + cell_height
                 self._create_rounded_rectangle(self.puzzle_canvas, x1, y1, x2, y2, radius=corner_radius, fill="#e0e0e0", outline="")
 
-        # Draw green squares based on total_habits_this_week
         for i in range(min(total_habits_this_week, rows * cols)):
             row = i // cols
             col = i % cols
@@ -244,7 +292,20 @@ class HabitTracker:
             y2 = y1 + cell_height
             self._create_rounded_rectangle(self.puzzle_canvas, x1, y1, x2, y2, radius=corner_radius, fill="#4caf50", outline="")
 
-if __name__ == "__main__":
+def main():
     root = ThemedTk(theme="arc")
-    app = HabitTracker(root)
+    
+    def launch_app(habits):
+        root.geometry("1200x800")
+        app = HabitTracker(root, habits)
+
+    habits = load_habits_config()
+    if habits:
+        launch_app(habits)
+    else:
+        SetupWindow(root, on_complete=launch_app)
+    
     root.mainloop()
+
+if __name__ == "__main__":
+    main()
