@@ -12,11 +12,7 @@ A simple command-line habit tracking application.
 Before you begin, ensure you have met the following requirements:
 - Python 3.x installed on your system.
 
-## Installation
-
-### For Windows:
-
-To get a local copy up and running, follow these simple steps.
+## Setup
 
 1.  **Clone the repository:**
 
@@ -25,40 +21,24 @@ To get a local copy up and running, follow these simple steps.
     cd Habit-Tracker
     ```
 
-2.  **Install dependencies:**
-    ```bash
-    pip install matplotlib
-    python3 -m pip install git+https://github.com/RedFantom/ttkthemes
-    ```
+2.  **Create and activate a virtual environment:**
 
-### For Linux:
-
-1.  **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/YOUR_USERNAME/Habit-Tracker.git
-    cd Habit-Tracker
-    ```
-
-2.  **Install dependencies:**
-
-    -   **Tkinter:**
-        -   For Debian/Ubuntu:
-            ```bash
-            sudo apt-get install python3-tk
-            ```
-        -   For Fedora:
-            ```bash
-            sudo dnf install python3-tkinter
-            ```
-    -   **Matplotlib:**
+    - For Windows:
         ```bash
-        python3 -m pip install matplotlib
+        python -m venv .venv
+        .venv\Scripts\activate
         ```
-    -   **ttkthemes:**
+
+    - For macOS and Linux:
         ```bash
-        python3 -m pip install git+https://github.com/RedFantom/ttkthemes
+        python3 -m venv .venv
+        source .venv/bin/activate
         ```
+
+3.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Usage
 
