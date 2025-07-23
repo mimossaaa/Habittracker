@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #habits-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .day {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 10px;
+            padding: 10px;
+            width: 200px;
+        }
+        .day h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Habit Tracker</h1>
+    <div id="habits-container"></div>
+
+    <script>
+        async function fetchHabits() {
+            const response = await fetch('habits.json');
+            const data = await response.json();
+            const habitsContainer = document.getElementById('habits-container');
+
+            for (const date in data) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+
+                const dateElement = document.createElement('h2');
+                dateElement.textContent = date;
+                dayElement.appendChild(dateElement);
+
+                const habitList = document.createElement('ul');
+                data[date].forEach(habit => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = habit;
+                    habitList.appendChild(listItem);
+                });
+                dayElement.appendChild(habitList);
+
+                habitsContainer.appendChild(dayElement);
+            }
+        }
+
+        fetchHabits();
+    </script>
+</body>
+</html>
