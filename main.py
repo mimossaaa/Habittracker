@@ -156,15 +156,16 @@ class HabitTracker:
         start_of_week = today - timedelta(days=today.weekday())
         week_dates = [(start_of_week + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
         
-        habits_completed = [len(data.get(date, [])) for date in week_dates]
+        habits_completed_data = {date: data.get(date, []) for date in week_dates}
+        habits_completed_counts = [len(habits) for habits in habits_completed_data.values()]
 
-        if not any(habits_completed):
+        if not any(habits_completed_counts):
             no_data_label = ttk.Label(self.graph_frame, text="No habit data for this week.", style="Header.TLabel")
             no_data_label.pack(expand=True)
             return
 
         fig, ax = plt.subplots(figsize=(5, 3), facecolor="#f0f0f0")
-        ax.plot(week_dates, habits_completed, marker='o', linestyle='-', color='#4caf50', markerfacecolor='#4caf50', markersize=8)
+        line, = ax.plot(week_dates, habits_completed_counts, marker='o', linestyle='-', color='#4caf50', markerfacecolor='#4caf50', markersize=8, picker=5)
         ax.set_xlabel("Date", color="#333333")
         ax.set_ylabel("Habits Completed", color="#333333")
         ax.set_title("Weekly Habit Progress", color="#333333")
@@ -179,6 +180,29 @@ class HabitTracker:
         canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(expand=True, fill="both")
+
+        tooltip = ttk.Label(self.graph_frame, text="", background="white", relief="solid", borderwidth=1, font=("Helvetica", 10))
+        tooltip.place_forget()
+
+        def on_hover(event):
+            if event.inaxes == ax:
+                cont, ind = line.contains(event)
+                if cont:
+                    idx = ind['ind'][0]
+                    date = week_dates[idx]
+                    habits_list = habits_completed_data[date]
+                    if habits_list:
+                        tooltip_text = "\n".join(habits_list)
+                        tooltip.config(text=tooltip_text)
+                        tooltip.place(x=event.x, y=event.y)
+                    else:
+                        tooltip.place_forget()
+                else:
+                    tooltip.place_forget()
+            else:
+                tooltip.place_forget()
+
+        fig.canvas.mpl_connect("motion_notify_event", on_hover)
         plt.close(fig)
 
     def _create_rounded_rectangle(self, canvas, x1, y1, x2, y2, radius=25, **kwargs):
