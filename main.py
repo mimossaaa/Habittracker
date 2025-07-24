@@ -165,7 +165,7 @@ class HabitTracker:
             return
 
         fig, ax = plt.subplots(figsize=(5, 3), facecolor="#f0f0f0")
-        line, = ax.plot(week_dates, habits_completed_counts, marker='o', linestyle='-', color='#4caf50', markerfacecolor='#4caf50', markersize=8, picker=5)
+        points = ax.plot(week_dates, habits_completed_counts, marker='o', linestyle='-', color='#4caf50', markerfacecolor='#4caf50', markersize=8, picker=5)[0]
         ax.set_xlabel("Date", color="#333333")
         ax.set_ylabel("Habits Completed", color="#333333")
         ax.set_title("Weekly Habit Progress", color="#333333")
@@ -186,7 +186,7 @@ class HabitTracker:
 
         def on_hover(event):
             if event.inaxes == ax:
-                cont, ind = line.contains(event)
+                cont, ind = points.contains(event)
                 if cont:
                     idx = ind['ind'][0]
                     date = week_dates[idx]
