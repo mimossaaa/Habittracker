@@ -1,5 +1,7 @@
 # Habit-Tracker
 
+![image](habits.png)
+
 A simple command-line habit tracking application.
 
 ## Features
